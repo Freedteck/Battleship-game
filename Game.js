@@ -2,9 +2,19 @@ const Player = require("./Player/Player");
 require("./Game.css");
 
 const Game = () => {
+  const main = document.createElement("main");
+
   const container = document.createElement("div");
   container.classList.add("container");
 
+  const toastContainer = document.createElement("div");
+  toastContainer.classList.add("toast-container");
+
+  const toast = document.createElement("p");
+  toast.classList.add("toast");
+
+  toast.textContent = "Waiting...";
+  toastContainer.appendChild(toast);
   const playerBoardContainer = document.createElement("div");
   playerBoardContainer.classList.add("player-board");
 
@@ -26,6 +36,9 @@ const Game = () => {
   const cGameBoard = document.createElement("div");
   cGameBoard.classList.add("c-game-board");
 
+  const randomize = document.createElement('button')
+  randomize.textContent = 'Randomize'
+
   const players = Player();
   const player = players.player;
   const computer = players.computer;
@@ -34,12 +47,25 @@ const Game = () => {
   let gameOver = false;
   let playerTurn = true;
 
-  const gameLoop = () => {
-    player.placeShip(3, 0, 1, false);
-    player.placeShip(3, 6, 3, true);
-    player.placeShip(3, 2, 7, false);
+  randomize.style.display = gameOver ? 'none' : 'block'
 
-    player.placeShip(4, 3, 0, true);
+  const gameLoop = () => {
+    const placePlayerShips = () => {
+      const lengthOption = [2, 3, 4];
+      const lengthIndex = Math.floor(Math.random() * lengthOption.length);
+      const length = lengthOption[lengthIndex];
+
+      const vertical = [true, false];
+      const index = Math.floor(Math.random() * vertical.length);
+      const choice = vertical[index];
+
+      let row, col;
+      do {
+        row = Math.floor(Math.random() * 10);
+        col = Math.floor(Math.random() * 10);
+      } while (player.board[row][col]);
+      player.placeShip(length, row, col, choice);
+    };
 
     const placeComputerShips = () => {
       const lengthOption = [2, 3, 4];
@@ -50,14 +76,17 @@ const Game = () => {
       const index = Math.floor(Math.random() * vertical.length);
       const choice = vertical[index];
 
-      const row = Math.floor(Math.random() * 10);
-      const col = Math.floor(Math.random() * 10);
-
+      let row, col;
+      do {
+        row = Math.floor(Math.random() * 10);
+        col = Math.floor(Math.random() * 10);
+      } while (computer.board[row][col]);
       computer.placeShip(length, row, col, choice);
     };
 
     for (let i = 0; i < 4; i++) {
       placeComputerShips();
+      placePlayerShips();
     }
   };
 
@@ -92,7 +121,6 @@ const Game = () => {
         cell.id = j;
         cell.dataset.index = i;
         rows.appendChild(cell);
-
         cell.addEventListener("click", () => {
           if (playerTurn && !cell.classList.contains("clicked")) {
             playerAttack(cell, i, j);
@@ -103,16 +131,34 @@ const Game = () => {
     }
   };
 
-  const clearBoard = () => {
-    // Clear player's board
-    const playerBoard = document.querySelector(".p-game-board");
-    playerBoard.innerHTML = "";
-    renderPlayerBoard(playerBoard);
+  const resetBoard = () => {
 
-    // Clear computer's board
-    const computerBoard = document.querySelector(".c-game-board");
-    computerBoard.innerHTML = "";
-    renderComputerBoard(computerBoard);
+    for (let i = 0; i < player.board.length; i++) {
+      for (let j = 0; j < player.board[i].length; j++) {
+
+        if (player.board[i][j]) {
+          player.board[i][j] = null
+        }
+      }
+    }
+
+    for (let i = 0; i < computer.board.length; i++) {
+      for (let j = 0; j < computer.board[i].length; j++) {
+
+        if (computer.board[i][j]) {
+          computer.board[i][j] = null
+        }
+      }
+    }
+
+    gameLoop()
+    // Clear player's board
+    gameOver = false;
+    pGameBoard.innerHTML = "";
+    renderPlayerBoard(pGameBoard);
+
+    cGameBoard.innerHTML = "";
+    renderComputerBoard(cGameBoard);
   };
 
   const computerAttack = () => {
@@ -146,6 +192,7 @@ const Game = () => {
           } else {
             cell.style.backgroundColor = "grey";
             playerTurn = true;
+            toast.textContent = "Your turn";
           }
         }
       });
@@ -154,8 +201,7 @@ const Game = () => {
       gameOver = true;
       alert("Computer Won");
       setTimeout(() => {
-        clearBoard();
-        gameLoop();
+        resetBoard();
       }, 1000);
     }
   };
@@ -172,6 +218,7 @@ const Game = () => {
       } else {
         cell.style.backgroundColor = "grey";
         playerTurn = false;
+        toast.textContent = "Opponent turn";
         setTimeout(() => {
           computerAttack();
         }, 1000);
@@ -180,25 +227,36 @@ const Game = () => {
     if (computer.allShipSunk()) {
       gameOver = true;
       alert("You Won");
+      playerTurn = true;
       setTimeout(() => {
-        clearBoard();
-        gameLoop();
+        resetBoard();
       }, 1000);
     }
   };
 
-  const renderBoards = (() => {
-    renderPlayerBoard(pGameBoard);
-    renderComputerBoard(cGameBoard);
+  setTimeout(() => {
+    const renderBoards = (() => {
+      renderPlayerBoard(pGameBoard);
+      renderComputerBoard(cGameBoard);
 
-    playerBoardContainer.appendChild(playerHead);
-    playerBoardContainer.appendChild(pGameBoard);
-    computerBoardContainer.appendChild(computerHead);
-    computerBoardContainer.appendChild(cGameBoard);
-    container.appendChild(playerBoardContainer);
-    container.appendChild(computerBoardContainer);
-    document.body.appendChild(container);
-  })()
+      playerBoardContainer.appendChild(playerHead);
+      playerBoardContainer.appendChild(pGameBoard);
+      computerBoardContainer.appendChild(computerHead);
+      computerBoardContainer.appendChild(cGameBoard);
+      container.appendChild(playerBoardContainer);
+      container.appendChild(computerBoardContainer);
+      toast.textContent = "Your turn";
+    })();
+  }, 1500);
+
+  randomize.addEventListener('click', (e) => {
+    console.log(e.target);
+    resetBoard()
+  })
+  main.appendChild(toastContainer);
+  main.appendChild(container);
+  main.appendChild(randomize);
+  document.body.appendChild(main);
 };
 
 Game();

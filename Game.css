@@ -4,25 +4,41 @@
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
 }
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding: 50px;
+}
+main .toast-container {
+  align-self: center;
+  background-color: rgb(53, 53, 53);
+  color: #FFF;
+  width: 360px;
+  padding: 20px 10px;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: 500;
+}
 .container {
   display: flex;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  justify-content: center;
+  flex-wrap: wrap-reverse;
   gap: 32px;
+  margin-top: 20px;
 }
 .container .player-board, .container .computer-board {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 48px;
+  max-width: 450px;
   flex: 1;
 }
 .container .player-board .p-game-board, .container .computer-board .c-game-board {
   display: grid;
   grid-template-rows: repeat(10, auto);
-  border: 1px solid rgb(103, 103, 250);;
-  flex-direction: column;
+  border: 1px solid rgb(103, 103, 250);
 }
 .player-board .p-game-board .cell, .computer-board .c-game-board .cell {
   outline: 0.3px solid rgb(103, 103, 250);
@@ -31,10 +47,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* padding: 15px; */
 }
 .cell.ship {
-  background-color: wheat;
+  background-color: rgb(97, 93, 201);
 }
 .cell.hit {
     background-color: rgba(255, 0, 0, .1);
@@ -43,4 +58,18 @@
 .row {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
+}
+button {
+  align-self: center;
+  padding: 10px 20px;
+  background-color: rgb(103, 103, 250);
+  border: 1px solid rgb(97, 93, 201);
+  border-radius: 5px;
+  color: #FFF;
+  font-weight: 500;
+}
+button:hover {
+  background-color: transparent;
+  cursor: pointer;
+  color: rgb(53, 53, 53);
 }

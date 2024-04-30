@@ -7,23 +7,54 @@ const Gameboard = () => {
   const missedAttack = [];
 
   const placeShip = (length, row, col, vertical) => {
-    if (
-      (vertical && row + length > board.length) ||
-      (!vertical && col + length > board.length)
-    ) {
-      return false;
+    let adjustedRow = row;
+    let adjustedCol = col;
+    let attempts = 0;
+
+    while (attempts <= 100) { // To prevent infinite loop in case the board is completely filled
+      if (vertical && adjustedRow + length > board.length) {
+        length = board.length - adjustedRow;
+      } else if (!vertical && adjustedCol + length > board[adjustedRow].length) {
+        length = board[adjustedRow].length - adjustedCol;
+      }
+
+      let occupied = false;
+      for (let i = 0; i < length; i++) {
+        if (vertical) {
+          if (board[adjustedRow + i][adjustedCol] !== null) {
+            occupied = true;
+            break;
+          }
+        } else {
+          if (board[adjustedRow][adjustedCol + i] !== null) {
+            occupied = true;
+            break;
+          }
+        }
+      }
+
+      if (!occupied) {
+        for (let i = 0; i < length; i++) {
+          if (vertical) {
+            board[adjustedRow + i][adjustedCol] = Ship(1);
+          } else {
+            board[adjustedRow][adjustedCol + i] = Ship(1);
+          }
+        }
+        return true;
+      }
+
+      // Move to the next available space
+      if (vertical) {
+        adjustedRow++;
+      } else {
+        adjustedCol++;
+      }
+
+      attempts++;
     }
 
-    for (let i = 0; i < length; i++) {
-      if (vertical) {
-        if (board[row + i][col] !== null) return false; // Cell is occupied
-        board[row + i][col] = Ship(1);
-      } else {
-        if (board[row][col + i] !== null) return false; // Cell is occupied
-        board[row][col + i] = Ship(1);
-      }
-    }
-    return true;
+    return false; // Could not place the ship
   };
 
   const receiveAttack = (row, col) => {
@@ -31,7 +62,7 @@ const Gameboard = () => {
     if (!target || target.isSunk()) {
       missedAttack.push({ row, col });
     } else {
-      board[row][col].hit();
+      target.hit();
     }
   };
 
