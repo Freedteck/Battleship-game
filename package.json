@@ -7,7 +7,14 @@
     "test": "jest",
     "watch": "webpack --watch",
     "start": "webpack serve --open",
-    "build": "webpack"
+    "build": "webpack",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "homepage": "http://Freedteck.github.io/Battleship-game",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Freedteck/Battleship-game.git"
   },
   "keywords": [],
   "author": "",
